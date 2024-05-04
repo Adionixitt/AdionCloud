@@ -1,6 +1,3 @@
-import { SignOutButton } from "@clerk/nextjs";
-import Image from "next/image";
-
 export default function Home() {
 	return (
 		<main className="flex w-full min-h-screen flex-row justify-between">
