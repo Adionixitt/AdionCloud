@@ -36,7 +36,7 @@ export default async function Home() {
 			<div className="flex w-1/2 h-screen justify-center items-center">
 				<div className="w-full max-w-md min-sm flex flex-col justify-center p-7 rounded-lg shadow-xl shadow-slate950">
 					<span className="material-symbols-rounded text-blue-600 w-full text-center text-xl mb-3">waving_hand</span>
-					<h1 className="text-xl font-bold w-full text-center mb-3">Рады вас видеть вновь!</h1>
+					<h1 className="text-xl font-bold w-full text-center mb-3">Рады вас видеть, {user.firstName}!</h1>
 					<p className="w-full text-md text-slate-500 mb-5">Вы уже авторизованы, вы можете сделать следующее:</p>
 					<Button className="p-7 font-bold"><Link href="/dashboard">Перейти к моему хранилищу</Link></Button>
 					<p className="mb-3 mt-3 w-full text-center text-sm text-slate-400">или</p>
