@@ -54,7 +54,7 @@ export default function Dashboard() {
 					<div className="bg-slate-50 p-10 mt-5 rounded-md border border-slate-200">
 						<div className="grid grid-cols-5 justify-evenly gap-4 w-full">
 							{files?.map((file)=>{
-								return <FileCard key={file._id} file={file}/>
+								return <FileCard key={file.id} file={file}/>
 							})}
 						</div>
 					</div>

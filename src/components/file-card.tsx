@@ -32,8 +32,9 @@ import { api } from "../../convex/_generated/api";
 import { useToast } from "./ui/use-toast";
 import { Button } from "./ui/button";
 import Image from "next/image";
+import { FileEntity } from '@/types/files';
 
-function FileCardActions({file}: {file: Doc<"files">}){
+function FileCardActions({file}: {file: FileEntity}){
     const [ isConfirmOpen, setIsConfirmOpen ] = useState(false);
     const { toast } = useToast();
     const deleteFile = useMutation(api.files.deleteFile);
@@ -52,7 +53,7 @@ function FileCardActions({file}: {file: Doc<"files">}){
                 <AlertDialogCancel>Отмена</AlertDialogCancel>
                 <AlertDialogAction onClick={async ()=>{
                     await deleteFile({
-                        fileId: file._id
+                        fileId: file.id
                     });
                     toast({
                         variant: "destructive",
@@ -86,7 +87,7 @@ function GetImage({ storageId }: { storageId: string }) {
     return <img src={getImageUrl.href} height="300px" width="auto" />;
   }
 
-export function FileCard({file}: {file: Doc<"files">}){
+export function FileCard({file}: {file: FileEntity}){
     const typeIcons = {
         "image": "planner_banner_ad_pt",
         "pdf": "draft",
@@ -104,7 +105,7 @@ export function FileCard({file}: {file: Doc<"files">}){
                 </CardTitle>
             </CardHeader>
             {
-                file.type === "image" && GetImage({storageId: file.fileId})
+                (file.type === "image" && file.url !== null) && <img src={file.url} height="300px" width="auto" />
             }
             <CardFooter>
                 <Button variant={"secondary"} className="w-full">Скачать</Button>
