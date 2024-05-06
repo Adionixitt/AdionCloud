@@ -68,9 +68,8 @@ function FileCardActions({file}: {file: FileEntity}){
         <DropdownMenu>
             <DropdownMenuTrigger><span className="material-symbols-rounded">more_vert</span></DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuItem onClick={()=>setIsConfirmOpen(true)} className="cursor-pointer text-red-600"><span className="material-symbols-rounded gap-2 text-sm">delete</span>Стереть</DropdownMenuItem>
+                <DropdownMenuItem onClick={()=>setIsConfirmOpen(true)} className="cursor-pointer text-red-600 gap-2"><span className="material-symbols-rounded gap-2 text-sm">delete</span>Стереть</DropdownMenuItem>
                 <DropdownMenuSeparator/>
-                <DropdownMenuItem className="cursor-pointer"><span className="material-symbols-rounded gap-2 text-sm">cloud_download</span>Скачать</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     </>
@@ -98,17 +97,21 @@ export function FileCard({file}: {file: FileEntity}){
             <CardHeader>
                 <CardTitle className="flex justify-between">
                     <div className="flex flex-row items-center gap-1">
-                        <span className="material-symbols-rounded w-full text-center text-slate-400">{typeIcons[file.type]}</span>
                         {file.name}
                     </div>
                     <FileCardActions file={file}/>
                 </CardTitle>
             </CardHeader>
-            {
-                (file.type === "image" && file.url !== null) && <img src={file.url} height="300px" width="auto" />
-            }
-            <CardFooter>
-                <Button variant={"secondary"} className="w-full">Скачать</Button>
+            <CardContent className="flex justify-center h-64 overflow-hidden">
+                {
+                    (file.type === "image" && file.url !== null) && <img className="flex object-cover w-fit h-64 rounded-md" alt={file.name} src={file.url} />
+                }
+                {
+                    (file.type !== "image" || file.url == null ) && <span className="material-symbols-rounded flex w-fit h-fit text-center text-slate-400">{typeIcons[file.type]}</span>
+                }
+            </CardContent>
+            <CardFooter className="mt-5">
+                <Button variant={"secondary"} className="w-full" onClick={()=>{file.url?window.open(file.url, "_blank") : ""}}>Скачать</Button>
             </CardFooter>
         </Card>
     );
