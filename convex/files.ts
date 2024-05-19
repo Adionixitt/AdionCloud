@@ -48,6 +48,7 @@ export const createFile = mutation({
 export const getFiles = query({
     args: {
         userId: v.string(),
+        query: v.optional(v.string()),
     },
     async handler(ctx, args){
         const identity = await ctx.auth.getUserIdentity();
@@ -57,10 +58,11 @@ export const getFiles = query({
             q.eq('userId', args.userId)
         ).collect();
 
+        
         const filesEntities: FileEntity[] = [];
         for (const f of filesTable) {
             const url = await ctx.storage.getUrl(f.fileId);
-
+            
             filesEntities.push({
                 id: f._id,
                 name: f.name,
@@ -68,8 +70,13 @@ export const getFiles = query({
                 url: url
             });
         }
-
-        return filesEntities;
+        
+        const query = args.query;
+        if(!query) {
+            return filesEntities;
+        } else {
+            return filesEntities.filter(file => file.name.toLowerCase().includes(query.toLowerCase()));
+        }
     }
 });
 

@@ -8,6 +8,9 @@ import { UploadButton } from "@/components/upload-button";
 import { FileCard } from "@/components/file-card";
 import Image from "next/image";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { Input } from "@/components/ui/input";
+import { SearchBar } from "../search-bar";
+import { useState } from "react";
 
 export default function Dashboard() {
 	const user = useUser();
@@ -15,8 +18,12 @@ export default function Dashboard() {
 	if(user.isLoaded){
 		userId = user.user?.id;
 	}
-	const files = useQuery(api.files.getFiles, user.user?.id ? {userId: user.user.id } : "skip");
+
+	const [query, setQuery] = useState("");
+
+	const files = useQuery(api.files.getFiles, user.user?.id ? {userId: user.user.id, query: query } : "skip");
 	const isLoading = files === undefined;
+
 	
 	return (
 		<main className="flex flex-col min-h-screen w-full p-24 pt-12 pb-12">
@@ -24,6 +31,8 @@ export default function Dashboard() {
 				<div>
 					<div className="flex w-full justify-between items-center">
 						<h1 className="text-4xl text-slate-700 font-extrabold">Хранилище</h1>
+						<SearchBar query={query} setQuery={setQuery}/>
+						<UploadButton/>
 					</div>
 					<div className="bg-slate-50 p-10 mt-5 rounded-md border border-slate-200 flex flex-col justify-center items-center">
 						<ReloadIcon className="mr-2 h-7 w-7 animate-spin mb-5 text-slate-500" />
@@ -31,7 +40,7 @@ export default function Dashboard() {
 					</div>
 				</div>
 			)}
-			{files && files.length === 0 && (
+			{files && !query && files.length === 0 && (
 				<div>
 					<div className="flex w-full justify-between items-center">
 						<h1 className="text-4xl text-slate-700 font-extrabold">Хранилище</h1>
@@ -45,10 +54,11 @@ export default function Dashboard() {
 					</div>
 				</div>
 			)}
-			{files && files.length > 0 && (
+			{files && (
 				<div>
 					<div className="flex w-full justify-between items-center">
 						<h1 className="text-4xl text-slate-700 font-extrabold">Хранилище</h1>
+						<SearchBar query={query} setQuery={setQuery}/>
 						<UploadButton/>
 					</div>
 					<div className="bg-slate-50 p-10 mt-5 rounded-md border border-slate-200">
@@ -56,6 +66,12 @@ export default function Dashboard() {
 							{files?.map((file)=>{
 								return <FileCard key={file.id} file={file}/>
 							})}
+							{files.length === 0 && (
+								<div className="flex flex-col w-full h-full justify-center items-center p-10">
+									<Image className="mb-5" alt="An image of two aliens while one of them is getting sucked in the UFO" width="200" height="200" src="/empty.svg" />
+									<p className="text-bold text-slate-500 mb-5">Не удалось найти файлы с названием "{query}"!</p>
+									</div>
+							)}
 						</div>
 					</div>
 				</div>
