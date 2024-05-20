@@ -1,7 +1,6 @@
 "use client"
-
 import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "../../../../convex/_generated/api";
 
 import { useUser } from "@clerk/nextjs";
 import { UploadButton } from "@/components/upload-button";
@@ -9,10 +8,12 @@ import { FileCard } from "@/components/file-card";
 import Image from "next/image";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
-import { SearchBar } from "../search-bar";
+import { SearchBar } from "../../search-bar";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import Link from "../../../../node_modules/next/link";
 
-export default function Dashboard() {
+export default function Files() {
 	const user = useUser();
 	let userId: string | undefined = undefined;
 	if(user.isLoaded){
@@ -26,7 +27,7 @@ export default function Dashboard() {
 
 	
 	return (
-		<main className="flex flex-col min-h-screen w-full p-24 pt-12 pb-12">
+		<div>
 			{isLoading && (
 				<div>
 					<div className="flex w-full justify-between items-center">
@@ -62,7 +63,7 @@ export default function Dashboard() {
 						<UploadButton/>
 					</div>
 					<div className="bg-slate-50 p-10 mt-5 rounded-md border border-slate-200">
-						<div className="grid grid-cols-5 justify-evenly gap-4 w-full">
+						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-evenly gap-4 w-full">
 							{files?.map((file)=>{
 								return <FileCard key={file.id} file={file}/>
 							})}
@@ -76,6 +77,6 @@ export default function Dashboard() {
 					</div>
 				</div>
 			)}
-		</main>
+		</div>
 	);
 }
