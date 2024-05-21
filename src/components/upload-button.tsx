@@ -63,6 +63,7 @@ export function UploadButton() {
             "image/jpeg": "image",
             "image/jpg": "image",
             "application/pdf": "pdf",
+            "document/document": "docx",
             "text/csv": "csv",
         } as Record<string, Doc<'files'>["type"]>;
 		try{

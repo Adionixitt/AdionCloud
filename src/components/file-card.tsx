@@ -68,8 +68,9 @@ function FileCardActions({file}: {file: FileEntity}){
         <DropdownMenu>
             <DropdownMenuTrigger><span className="material-symbols-rounded">more_vert</span></DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuItem onClick={()=>setIsConfirmOpen(true)} className="cursor-pointer text-red-600 gap-2"><span className="material-symbols-rounded gap-2 text-sm">delete</span>Стереть</DropdownMenuItem>
+            <DropdownMenuItem onClick={()=>{}} className="cursor-pointer gap-2"><span className="material-symbols-rounded gap-2 text-sm">star</span>В избранное</DropdownMenuItem>
                 <DropdownMenuSeparator/>
+            <DropdownMenuItem onClick={()=>setIsConfirmOpen(true)} className="cursor-pointer text-red-600 gap-2"><span className="material-symbols-rounded gap-2 text-sm">delete</span>Стереть</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     </>
@@ -91,6 +92,7 @@ export function FileCard({file}: {file: FileEntity}){
         "image": "planner_banner_ad_pt",
         "pdf": "draft",
         "csv": "table",
+        "docx": "draft",
     } as Record<string, string>;
     return (
         <Card>
