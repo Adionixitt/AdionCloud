@@ -1,7 +1,8 @@
 import { ConvexError, v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { fileTypes } from "./schema";
 import { FileEntity } from '@/types/files';
+import { Id } from "./_generated/dataModel";
 
 export const generateUploadUrl = mutation(async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -83,13 +84,9 @@ export const getFiles = query({
 export const deleteFile = mutation({
     args: {fileId: v.id("files")},
     async handler(ctx, args){
-        const identity = await ctx.auth.getUserIdentity();
-        if(!identity){
-            throw new ConvexError('You must be logged in to work with files.');
-        }
-        const file = await ctx.db.get(args.fileId);
-        if(!file){
-            throw new ConvexError("There's no such file to delete");
+        const access = await hasAccessToFile(ctx, args.fileId);
+        if(!access){
+            throw new ConvexError('No access to file');
         }
 
         await ctx.db.delete(args.fileId);
@@ -99,26 +96,44 @@ export const deleteFile = mutation({
 export const toggleFavourite = mutation({
     args: {fileId: v.id("files")},
     async handler(ctx, args){
-        const identity = await ctx.auth.getUserIdentity();
-        if(!identity){
-            throw new ConvexError('You must be logged in to work with files.');
+        const access = await hasAccessToFile(ctx, args.fileId);
+        if(!access){
+            throw new ConvexError('No access to file');
         }
-        const file = await ctx.db.get(args.fileId);
-        if(!file){
-            throw new ConvexError("There's no such file to delete");
+        
+        const favourite = await ctx.db.query("favourites").withIndex("by_userId_fileId", q => q.eq('userId', access.user._id).eq('fileId', access.file._id));
+        if(!favourite){
+            await ctx.db.insert('favourites', {
+                fileId: access.file._id,
+                userId: access.user._id,
+            });
+        } else {
+            await ctx.db.delete(favourite._id);
         }
-
-        await ctx.db.delete(args.fileId);
-
-        const user = await ctx.db
-        .query('users')
-        .withIndex("by_tokenIdentifier", (q) => 
-            q.eq("tokenIdentifier", identity.tokenIdentifier)
-        ).first();
-
-        if(!user) {
-            throw new ConvexError
-        }
-        // const favourites = await ctx.db.query("favourites").withIndex("by_userId_fileId", q => q.eq('userId', ));
     }
 });
+
+async function hasAccessToFile(ctx: QueryCtx | MutationCtx, fileId: Id<"files">){
+    const identity = await ctx.auth.getUserIdentity();
+    if(!identity){
+        return null;
+    }
+    const file = await ctx.db.get(fileId);
+    if(!file){
+        return null;
+    }
+
+    await ctx.db.delete(fileId);
+
+    const user = await ctx.db
+    .query('users')
+    .withIndex("by_tokenIdentifier", (q) => 
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+    ).first();
+
+    if(!user) {
+        return null;
+    }
+
+    return {user, file};
+}

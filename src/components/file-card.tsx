@@ -37,6 +37,8 @@ import { FileEntity } from '@/types/files';
 function FileCardActions({file}: {file: FileEntity}){
     const [ isConfirmOpen, setIsConfirmOpen ] = useState(false);
     const { toast } = useToast();
+
+    const toggleFavourite = useMutation(api.files.toggleFavourite);
     const deleteFile = useMutation(api.files.deleteFile);
 
     return(
@@ -68,7 +70,11 @@ function FileCardActions({file}: {file: FileEntity}){
         <DropdownMenu>
             <DropdownMenuTrigger><span className="material-symbols-rounded">more_vert</span></DropdownMenuTrigger>
             <DropdownMenuContent>
-            <DropdownMenuItem onClick={()=>{}} className="cursor-pointer gap-2"><span className="material-symbols-rounded gap-2 text-sm">star</span>В избранное</DropdownMenuItem>
+            <DropdownMenuItem onClick={()=>{
+                toggleFavourite({
+                    fileId: file.id
+                });
+                }} className="cursor-pointer gap-2"><span className="material-symbols-rounded gap-2 text-sm">star</span>В избранное</DropdownMenuItem>
                 <DropdownMenuSeparator/>
             <DropdownMenuItem onClick={()=>setIsConfirmOpen(true)} className="cursor-pointer text-red-600 gap-2"><span className="material-symbols-rounded gap-2 text-sm">delete</span>Стереть</DropdownMenuItem>
             </DropdownMenuContent>
@@ -87,7 +93,7 @@ function GetImage({ storageId }: { storageId: string }) {
     return <img src={getImageUrl.href} height="300px" width="auto" />;
   }
 
-export function FileCard({file}: {file: FileEntity}){
+export function FileCard({file}: {file: Doc<"files">}){
     const typeIcons = {
         "image": "planner_banner_ad_pt",
         "pdf": "draft",
