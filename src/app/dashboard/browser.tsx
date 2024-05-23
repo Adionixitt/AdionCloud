@@ -13,7 +13,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "../../../node_modules/next/link";
 
-export default function FileBrowser({title}: {title:string}){
+export default function FileBrowser({title, favourites}: {title:string, favourites?:boolean}){
     const user = useUser();
 	let userId: string | undefined = undefined;
 	if(user.isLoaded){
@@ -22,7 +22,10 @@ export default function FileBrowser({title}: {title:string}){
 
 	const [query, setQuery] = useState("");
 
-	const files = useQuery(api.files.getFiles, user.user?.id ? {userId: user.user.id, query: query } : "skip");
+	const files = useQuery(
+		api.files.getFiles,
+		userId ? {userId, query, favourites } : "skip");
+		console.log(files);
 	const isLoading = files === undefined;
 
 	if(isLoading){

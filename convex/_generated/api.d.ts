@@ -18,6 +18,7 @@ import type * as clerk from "../clerk.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
 import type * as listMessages from "../listMessages.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   files: typeof files;
   http: typeof http;
   listMessages: typeof listMessages;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

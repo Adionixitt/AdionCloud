@@ -67,5 +67,5 @@
     'opsz' 24
   }
   *{
-    user-select: none;
+    /* user-select: none; */
   }

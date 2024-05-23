@@ -50,17 +50,18 @@ export const getFiles = query({
     args: {
         userId: v.string(),
         query: v.optional(v.string()),
+        favourites: v.optional(v.boolean()),
     },
     async handler(ctx, args){
         const identity = await ctx.auth.getUserIdentity();
         if(!identity) { return []; }
 
-        const filesTable = await ctx.db.query('files').withIndex('by_userId', q =>
+        let filesTable = await ctx.db.query('files').withIndex('by_userId', q =>
             q.eq('userId', args.userId)
         ).collect();
 
         
-        const filesEntities: FileEntity[] = [];
+        let filesEntities: FileEntity[] = [];
         for (const f of filesTable) {
             const url = await ctx.storage.getUrl(f.fileId);
             
@@ -73,21 +74,36 @@ export const getFiles = query({
         }
         
         const query = args.query;
-        if(!query) {
-            return filesEntities;
-        } else {
+        if(query) {
             return filesEntities.filter(file => file.name.toLowerCase().includes(query.toLowerCase()));
         }
+
+        if(args.favourites){
+            const user = await ctx.db
+                .query('users')
+                .withIndex("by_tokenIdentifier", (q) => 
+                    q.eq("tokenIdentifier", identity.tokenIdentifier)
+                ).first();
+            if(!user){
+                return filesEntities;
+            }
+            const favourites = await ctx.db.query("favourites").withIndex("by_userId_fileId", q =>
+                q.eq("userId", user._id)
+            ).collect();
+            filesEntities = filesEntities.filter((file) => favourites.some((favourite) => favourite.fileId === file._id))
+        }
+
+        return filesEntities;
     }
 });
 
 export const deleteFile = mutation({
     args: {fileId: v.id("files")},
     async handler(ctx, args){
-        const access = await hasAccessToFile(ctx, args.fileId);
-        if(!access){
-            throw new ConvexError('No access to file');
-        }
+        // const access = await hasAccessToFile(ctx, args.fileId);
+        // if(!access){
+        //     throw new ConvexError('No access to file');
+        // }
 
         await ctx.db.delete(args.fileId);
     }
@@ -101,20 +117,29 @@ export const toggleFavourite = mutation({
             throw new ConvexError('No access to file');
         }
         
-        const favourite = await ctx.db.query("favourites").withIndex("by_userId_fileId", q => q.eq('userId', access.user._id).eq('fileId', access.file._id));
+        const favourite = await ctx.db
+        .query("favourites")
+        .withIndex("by_userId_fileId", (q) =>
+        q
+            .eq('userId', access.user._id)
+            .eq('fileId', access.file._id)
+        )
+        .first();
+
         if(!favourite){
             await ctx.db.insert('favourites', {
                 fileId: access.file._id,
                 userId: access.user._id,
             });
         } else {
-            await ctx.db.delete(favourite._id);
+            await ctx.db.delete('favourites', favourite._id);
         }
     }
 });
 
 async function hasAccessToFile(ctx: QueryCtx | MutationCtx, fileId: Id<"files">){
     const identity = await ctx.auth.getUserIdentity();
+    console.log(identity.tokenIdentifier);
     if(!identity){
         return null;
     }

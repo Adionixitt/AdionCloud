@@ -14,6 +14,9 @@ export default defineSchema({
     fileId: v.id("_storage"),
     userId: v.string(),
   }).index("by_userId", ['userId']),
+  users: defineTable({
+    tokenIdentifier: v.string(),
+  }).index("by_tokenIdentifier", ["tokenIdentifier"]),
   favourites: defineTable({
     fileId: v.id("files"),
     userId: v.id("users")
